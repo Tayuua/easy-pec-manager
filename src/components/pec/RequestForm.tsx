@@ -4,15 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { addRequest } from '@/services/pecRequestService';
+import { useAddRequest } from '@/services/pecRequestService';
 import { toast } from 'sonner';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 const RequestForm = () => {
   const [patientId, setPatientId] = useState('');
   const [patientName, setPatientName] = useState('');
   const [description, setDescription] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  
+  const navigate = useNavigate();
+  const addRequestMutation = useAddRequest();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,21 +25,26 @@ const RequestForm = () => {
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      const newRequest = addRequest(patientId, patientName, description);
-      toast.success('Demande de PEC créée avec succès');
-      
-      // Reset form
-      setPatientId('');
-      setPatientName('');
-      setDescription('');
-    } catch (error) {
-      toast.error('Une erreur est survenue lors de la création de la demande');
-    } finally {
-      setIsLoading(false);
-    }
+    addRequestMutation.mutate({
+      patientId,
+      patientName,
+      description
+    }, {
+      onSuccess: () => {
+        toast.success('Demande de PEC créée avec succès');
+        
+        // Réinitialiser le formulaire
+        setPatientId('');
+        setPatientName('');
+        setDescription('');
+        
+        // Rediriger vers la liste des demandes
+        navigate('/requests');
+      },
+      onError: () => {
+        toast.error("Une erreur est survenue lors de la création de la demande");
+      }
+    });
   };
 
   return (
@@ -81,8 +89,12 @@ const RequestForm = () => {
         </CardContent>
         
         <CardFooter>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Création en cours...' : 'Créer la demande'}
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={addRequestMutation.isPending}
+          >
+            {addRequestMutation.isPending ? 'Création en cours...' : 'Créer la demande'}
           </Button>
         </CardFooter>
       </form>

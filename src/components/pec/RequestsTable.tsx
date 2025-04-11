@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Check, X, Clock, MoreHorizontal, Trash2, RefreshCw } from 'lucide-react';
 import { PECRequest, RequestStatus } from '@/types';
 import RequestStatusBadge from './RequestStatusBadge';
-import { getAllRequests, updateRequestStatus, deleteRequest } from '@/services/pecRequestService';
+import { useRequests, useUpdateRequestStatus, useDeleteRequest } from '@/services/pecRequestService';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import {
@@ -26,47 +26,30 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 const RequestsTable = () => {
-  const [requests, setRequests] = useState<PECRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadRequests = () => {
-    setIsLoading(true);
-    try {
-      const data = getAllRequests();
-      setRequests(data);
-    } catch (error) {
-      toast.error('Erreur lors du chargement des demandes');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadRequests();
-  }, []);
+  const { data: requests = [], isLoading, refetch } = useRequests();
+  const updateStatusMutation = useUpdateRequestStatus();
+  const deleteMutation = useDeleteRequest();
 
   const handleStatusUpdate = (id: string, status: RequestStatus) => {
-    try {
-      const updated = updateRequestStatus(id, status);
-      if (updated) {
-        setRequests(requests.map(req => req.id === id ? { ...req, status } : req));
+    updateStatusMutation.mutate({ id, status }, {
+      onSuccess: () => {
         toast.success(`État de la demande mis à jour: ${status === 'validated' ? 'Validé' : status === 'rejected' ? 'Refusé' : 'En cours'}`);
+      },
+      onError: () => {
+        toast.error('Erreur lors de la mise à jour de la demande');
       }
-    } catch (error) {
-      toast.error('Erreur lors de la mise à jour de la demande');
-    }
+    });
   };
 
   const handleDelete = (id: string) => {
-    try {
-      const success = deleteRequest(id);
-      if (success) {
-        setRequests(requests.filter(req => req.id !== id));
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
         toast.success('Demande supprimée avec succès');
+      },
+      onError: () => {
+        toast.error('Erreur lors de la suppression de la demande');
       }
-    } catch (error) {
-      toast.error('Erreur lors de la suppression de la demande');
-    }
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -81,8 +64,13 @@ const RequestsTable = () => {
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="p-4 flex justify-between items-center border-b">
         <h3 className="font-medium">Liste des demandes de PEC</h3>
-        <Button variant="outline" size="sm" onClick={loadRequests}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => refetch()}
+          disabled={isLoading}
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
           Actualiser
         </Button>
       </div>
@@ -124,20 +112,33 @@ const RequestsTable = () => {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleStatusUpdate(request.id, 'pending')}>
+                      <DropdownMenuItem 
+                        onClick={() => handleStatusUpdate(request.id, 'pending')}
+                        disabled={updateStatusMutation.isPending}
+                      >
                         <Clock className="mr-2 h-4 w-4 text-easypec-orange" />
                         <span>Marquer en cours</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleStatusUpdate(request.id, 'validated')}>
+                      <DropdownMenuItem 
+                        onClick={() => handleStatusUpdate(request.id, 'validated')}
+                        disabled={updateStatusMutation.isPending}
+                      >
                         <Check className="mr-2 h-4 w-4 text-easypec-green" />
                         <span>Marquer validé</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleStatusUpdate(request.id, 'rejected')}>
+                      <DropdownMenuItem 
+                        onClick={() => handleStatusUpdate(request.id, 'rejected')}
+                        disabled={updateStatusMutation.isPending}
+                      >
                         <X className="mr-2 h-4 w-4 text-easypec-red" />
                         <span>Marquer refusé</span>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleDelete(request.id)}>
+                      <DropdownMenuItem 
+                        onClick={() => handleDelete(request.id)}
+                        disabled={deleteMutation.isPending}
+                        className="text-easypec-red"
+                      >
                         <Trash2 className="mr-2 h-4 w-4 text-easypec-red" />
                         <span>Supprimer</span>
                       </DropdownMenuItem>
