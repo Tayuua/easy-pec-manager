@@ -18,6 +18,11 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
+              <img 
+                src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=40&h=40" 
+                alt="Robot head" 
+                className="h-8 w-8 mr-2 rounded-full"
+              />
               <span className="text-easypec-blue font-bold text-xl">Easy PEC</span>
             </Link>
           </div>
