@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getMutuelleCredentials, saveMutuelleCredential } from '@/services/credentialsService';
+import { useMutuelleCredentials, useSaveMutuelleCredential } from '@/services/credentialsService';
 import { toast } from 'sonner';
 import { MutuelleCredential } from '@/types';
 
@@ -35,47 +35,10 @@ const MutuelleForm = () => {
   const [selectedMutuelle, setSelectedMutuelle] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [savedCredentials, setSavedCredentials] = useState<MutuelleCredential[]>([]);
-
-  useEffect(() => {
-    loadSavedCredentials();
-  }, []);
-
-  const loadSavedCredentials = () => {
-    const credentials = getMutuelleCredentials();
-    setSavedCredentials(credentials);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedMutuelle || !username || !password) {
-      toast.error('Veuillez renseigner tous les champs');
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      saveMutuelleCredential({
-        name: selectedMutuelle,
-        username,
-        password
-      });
-      
-      toast.success('Identifiants enregistrés avec succès');
-      
-      // Reset form and refresh credentials list
-      setUsername('');
-      setPassword('');
-      loadSavedCredentials();
-    } catch (error) {
-      toast.error('Une erreur est survenue lors de l\'enregistrement');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
+  // Utiliser les hooks React Query au lieu des appels directs à l'API
+  const { data: savedCredentials = [], isLoading: isLoadingCredentials } = useMutuelleCredentials();
+  const saveMutation = useSaveMutuelleCredential();
 
   const handleSelectMutuelle = (value: string) => {
     setSelectedMutuelle(value);
@@ -89,6 +52,29 @@ const MutuelleForm = () => {
       setUsername('');
       setPassword('');
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedMutuelle || !username || !password) {
+      toast.error('Veuillez renseigner tous les champs');
+      return;
+    }
+    
+    saveMutation.mutate({
+      name: selectedMutuelle,
+      username,
+      password
+    }, {
+      onSuccess: () => {
+        toast.success('Identifiants enregistrés avec succès');
+        // Pas besoin de recharger manuellement les données, React Query s'en charge automatiquement
+      },
+      onError: () => {
+        toast.error('Une erreur est survenue lors de l\'enregistrement');
+      }
+    });
   };
 
   return (
@@ -135,14 +121,16 @@ const MutuelleForm = () => {
           />
         </div>
         
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? 'Enregistrement...' : 'Enregistrer les identifiants'}
+        <Button type="submit" disabled={saveMutation.isPending} className="w-full">
+          {saveMutation.isPending ? 'Enregistrement...' : 'Enregistrer les identifiants'}
         </Button>
       </form>
       
       <div className="mt-8">
         <h4 className="font-medium text-sm text-gray-500 mb-2">Réseaux enregistrés</h4>
-        {savedCredentials.length === 0 ? (
+        {isLoadingCredentials ? (
+          <p className="text-sm text-gray-500">Chargement...</p>
+        ) : savedCredentials.length === 0 ? (
           <p className="text-sm text-gray-500">Aucun identifiant enregistré</p>
         ) : (
           <div className="grid grid-cols-2 gap-2">
