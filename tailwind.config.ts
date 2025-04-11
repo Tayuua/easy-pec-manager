@@ -64,12 +64,13 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				easypec: {
-					blue: '#0EA5E9',
-					lightblue: '#E0F2FE',
+					blue: '#636CE4',
+					lightblue: '#E6E8FA',
 					green: '#22C55E',
 					red: '#EF4444',
 					orange: '#F97316',
-					gray: '#F3F4F6',
+					gray: '#F6F5F2',
+					secondary: '#908478'
 				}
 			},
 			borderRadius: {

@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import PageContainer from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
-import { FileCheck, Settings, Users } from 'lucide-react';
+import { FileCheck, Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Index = () => {
@@ -29,17 +29,11 @@ const Index = () => {
       subtitle="La solution simple pour gérer vos demandes de prise en charge"
     >
       <div className="mt-8 text-center max-w-2xl mx-auto">
-        <img 
-          src="/lovable-uploads/53b2c257-fe70-40fc-ba94-a1b78cdd18ac.png" 
-          alt="Easy PEC Workflow" 
-          className="mx-auto max-h-48 mb-8 object-contain"
-        />
-        
         <h2 className="text-xl font-medium text-gray-800 mb-6">
           Simplifiez la gestion de vos demandes de prise en charge
         </h2>
         
-        <Button onClick={() => navigate('/requests/new')} size="lg">
+        <Button onClick={() => navigate('/requests/new')} size="lg" className="bg-easypec-blue hover:bg-easypec-blue/90">
           Nouvelle demande de PEC
         </Button>
       </div>
