@@ -10,7 +10,6 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { useRequests } from "@/services/pecRequestService";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ChartContainer } from "@/components/ui/chart";
 import {
   ResponsiveContainer,
@@ -46,6 +45,26 @@ const StatsPage = () => {
     }
   ];
 
+  // Calcul du délai moyen de traitement par mutuelle
+  const processingTimeData = requests?.reduce((acc, request) => {
+    if (request.validatedAt && request.createdAt && (request.status === 'validated' || request.status === 'rejected')) {
+      const mutuelle = request.mutuelle || 'Non spécifiée';
+      const processingTime = (new Date(request.validatedAt).getTime() - new Date(request.createdAt).getTime()) / (1000 * 3600); // en heures
+      
+      if (!acc[mutuelle]) {
+        acc[mutuelle] = { total: 0, count: 0 };
+      }
+      acc[mutuelle].total += processingTime;
+      acc[mutuelle].count += 1;
+    }
+    return acc;
+  }, {} as Record<string, { total: number; count: number }>);
+
+  const averageProcessingTimeData = Object.entries(processingTimeData || {}).map(([mutuelle, data]) => ({
+    name: mutuelle,
+    heures: Math.round(data.total / data.count)
+  }));
+
   return (
     <PageContainer 
       title="Statistiques" 
@@ -76,7 +95,7 @@ const StatsPage = () => {
         </Select>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Statuts des demandes */}
         <Card className="col-span-1">
           <CardHeader>
@@ -120,6 +139,24 @@ const StatsPage = () => {
                 <Legend />
                 <Bar dataKey="acceptés" fill="#4ade80" />
                 <Bar dataKey="refusés" fill="#f87171" />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        {/* Délai moyen de traitement */}
+        <Card className="col-span-1">
+          <CardHeader>
+            <CardTitle>Délai moyen de traitement</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer className="w-full aspect-[4/3]" config={{}}>
+              <BarChart data={averageProcessingTimeData}>
+                <XAxis dataKey="name" />
+                <YAxis label={{ value: 'Heures', angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="heures" fill="#8884d8" />
               </BarChart>
             </ChartContainer>
           </CardContent>

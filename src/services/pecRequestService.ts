@@ -1,7 +1,64 @@
-
 import { PECRequest, RequestStatus } from '@/types';
 import { api, ApiResponse, PaginatedResponse } from './apiService';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+// Sample data for testing
+const sampleData: PECRequest[] = [
+  {
+    id: '1',
+    patientId: 'P001',
+    patientName: 'Jean Dupont',
+    createdAt: '2024-04-10T10:00:00Z',
+    status: 'validated',
+    description: 'Consultation dentaire',
+    shopId: 'lab1',
+    mutuelle: 'Harmonie',
+    validatedAt: '2024-04-11T14:30:00Z',
+  },
+  {
+    id: '2',
+    patientId: 'P002',
+    patientName: 'Marie Martin',
+    createdAt: '2024-04-11T09:00:00Z',
+    status: 'rejected',
+    description: 'Prothèse dentaire',
+    shopId: 'lab2',
+    mutuelle: 'MGEN',
+    validatedAt: '2024-04-12T11:20:00Z',
+  },
+  {
+    id: '3',
+    patientId: 'P003',
+    patientName: 'Pierre Durant',
+    createdAt: '2024-04-12T14:00:00Z',
+    status: 'pending',
+    description: 'Implant dentaire',
+    shopId: 'lab1',
+    mutuelle: 'Harmonie',
+  },
+  {
+    id: '4',
+    patientId: 'P004',
+    patientName: 'Sophie Bernard',
+    createdAt: '2024-04-13T11:00:00Z',
+    status: 'validated',
+    description: 'Couronne dentaire',
+    shopId: 'lab2',
+    mutuelle: 'MGEN',
+    validatedAt: '2024-04-14T16:45:00Z',
+  },
+  {
+    id: '5',
+    patientId: 'P005',
+    patientName: 'Luc Petit',
+    createdAt: '2024-04-14T13:30:00Z',
+    status: 'rejected',
+    description: 'Bridge dentaire',
+    shopId: 'lab1',
+    mutuelle: 'AXA',
+    validatedAt: '2024-04-15T09:15:00Z',
+  }
+];
 
 // Endpoints API
 const API_ENDPOINTS = {
@@ -10,16 +67,8 @@ const API_ENDPOINTS = {
 
 // Obtenir toutes les demandes PEC
 export const getAllRequests = async (): Promise<PECRequest[]> => {
-  // Utilisation temporaire de localStorage jusqu'à la connexion à l'API
-  const saved = localStorage.getItem('easypec-requests');
-  if (saved) {
-    return JSON.parse(saved);
-  }
-  return [];
-  
-  // Code pour l'API (à décommenter lorsque l'API est prête)
-  // return api.get<PaginatedResponse<PECRequest>>(API_ENDPOINTS.requests)
-  //   .then(response => response.data);
+  // Version temporaire avec données de test
+  return sampleData;
 };
 
 // Ajouter une nouvelle demande PEC
