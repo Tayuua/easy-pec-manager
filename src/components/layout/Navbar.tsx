@@ -2,6 +2,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, ListChecks, BarChart3, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import NotificationIcon from '@/components/notification/NotificationIcon';
 
 const Navbar = () => {
   const location = useLocation();
@@ -28,23 +29,27 @@ const Navbar = () => {
             </Link>
           </div>
           
-          <nav className="flex space-x-4 items-center">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  "flex items-center px-3 py-2 rounded-md text-sm font-medium",
-                  location.pathname === item.href
-                    ? "text-easypec-blue bg-easypec-lightblue"
-                    : "text-gray-600 hover:bg-gray-100"
-                )}
-              >
-                <span className="mr-2">{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex items-center">
+            <nav className="flex space-x-4 items-center mr-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center px-3 py-2 rounded-md text-sm font-medium",
+                    location.pathname === item.href
+                      ? "text-easypec-blue bg-easypec-lightblue"
+                      : "text-gray-600 hover:bg-gray-100"
+                  )}
+                >
+                  <span className="mr-2">{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            
+            <NotificationIcon />
+          </div>
         </div>
       </div>
     </header>

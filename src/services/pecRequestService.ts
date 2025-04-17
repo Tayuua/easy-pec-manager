@@ -1,6 +1,8 @@
+
 import { PECRequest, RequestStatus } from '@/types';
 import { api, ApiResponse, PaginatedResponse } from './apiService';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createNotification } from './notificationService';
 
 // Sample data for testing
 const sampleData: PECRequest[] = [
@@ -91,6 +93,16 @@ export const addRequest = async (
   const updatedRequests = [...requests, newRequest];
   localStorage.setItem('easypec-requests', JSON.stringify(updatedRequests));
   
+  // Créer une notification pour la nouvelle demande
+  createNotification(
+    'Nouvelle demande créée',
+    `Une nouvelle demande a été créée pour ${patientName}`,
+    'info',
+    'request_status',
+    newRequest.id,
+    '/requests'
+  );
+  
   return newRequest;
   
   // Version API (à décommenter lorsque l'API est prête)
@@ -111,11 +123,55 @@ export const updateRequestStatus = async (id: string, status: RequestStatus): Pr
     return null;
   }
   
-  const updatedRequest = { ...requests[requestIndex], status };
+  const oldStatus = requests[requestIndex].status;
+  const patientName = requests[requestIndex].patientName;
+  const mutuelle = requests[requestIndex].mutuelle;
+  
+  const updatedRequest = { 
+    ...requests[requestIndex], 
+    status,
+    validatedAt: (status !== 'pending') ? new Date().toISOString() : requests[requestIndex].validatedAt
+  };
+  
   const updatedRequests = [...requests];
   updatedRequests[requestIndex] = updatedRequest;
   
   localStorage.setItem('easypec-requests', JSON.stringify(updatedRequests));
+  
+  // Créer des notifications appropriées selon le changement de statut
+  if (oldStatus !== status) {
+    if (status === 'validated') {
+      createNotification(
+        'Demande validée',
+        `La demande de ${patientName} a été validée${mutuelle ? ` par ${mutuelle}` : ''}`,
+        'success',
+        'request_status',
+        id,
+        '/requests'
+      );
+    } else if (status === 'rejected') {
+      createNotification(
+        'Demande refusée',
+        `La demande de ${patientName} a été refusée${mutuelle ? ` par ${mutuelle}` : ''}`,
+        'error',
+        'request_status',
+        id,
+        '/requests'
+      );
+      
+      // Vérifier s'il y a une anomalie (refus sans motif)
+      if (!updatedRequest.description || updatedRequest.description.trim() === '') {
+        createNotification(
+          'Anomalie détectée',
+          `La demande de ${patientName} a été refusée sans motif précisé`,
+          'warning',
+          'anomaly',
+          id,
+          '/requests'
+        );
+      }
+    }
+  }
   
   return updatedRequest;
   

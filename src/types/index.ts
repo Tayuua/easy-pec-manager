@@ -1,3 +1,4 @@
+
 export type RequestStatus = "pending" | "validated" | "rejected";
 
 export interface PECRequest {
@@ -23,6 +24,22 @@ export interface SoftwareCredential {
   username: string;
   password: string;
   url: string;
+}
+
+// Notification types
+export type NotificationType = "success" | "info" | "warning" | "error";
+export type NotificationCategory = "request_status" | "expiration" | "anomaly" | "system";
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  category: NotificationCategory;
+  createdAt: string;
+  read: boolean;
+  requestId?: string;
+  actionUrl?: string;
 }
 
 // Nouveaux types API
