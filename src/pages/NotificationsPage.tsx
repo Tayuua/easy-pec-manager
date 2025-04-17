@@ -136,13 +136,15 @@ const NotificationsPage = () => {
           <CardContent className="flex flex-col gap-2">
             <div className="flex space-x-2">
               <div className="flex-1">
-                <Input 
-                  placeholder="Rechercher..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full"
-                  prefix={<Search className="h-4 w-4" />}
-                />
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Rechercher..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-8"
+                  />
+                </div>
               </div>
               <Select value={filter} onValueChange={setFilter}>
                 <SelectTrigger className="w-[140px]">
