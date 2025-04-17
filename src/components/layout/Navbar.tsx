@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ListChecks, Settings } from 'lucide-react';
+import { Home, ListChecks, BarChart3, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navbar = () => {
@@ -9,6 +9,7 @@ const Navbar = () => {
   const navItems = [
     { href: '/', icon: <Home size={20} />, label: 'Accueil' },
     { href: '/requests', icon: <ListChecks size={20} />, label: 'Demandes PEC' },
+    { href: '/stats', icon: <BarChart3 size={20} />, label: 'Statistiques' },
     { href: '/settings', icon: <Settings size={20} />, label: 'Paramètres' }
   ];
   

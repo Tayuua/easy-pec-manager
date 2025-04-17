@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import RequestsPage from "./pages/RequestsPage";
 import NewRequestPage from "./pages/NewRequestPage";
 import SettingsPage from "./pages/SettingsPage";
+import StatsPage from "./pages/StatsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/requests" element={<RequestsPage />} />
           <Route path="/requests/new" element={<NewRequestPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/stats" element={<StatsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
