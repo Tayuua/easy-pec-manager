@@ -1,4 +1,3 @@
-
 export type RequestStatus = "pending" | "validated" | "rejected";
 
 export interface PECRequest {
@@ -8,6 +7,9 @@ export interface PECRequest {
   createdAt: string;
   status: RequestStatus;
   description?: string;
+  validatedAt?: string;
+  mutuelle?: string;
+  shopId?: string;
 }
 
 export interface MutuelleCredential {
